@@ -23,8 +23,8 @@ const client = new MongoClient(uri, {
 
     try{
 
-           await client.connect()
-           await client.db("billdb").command({ping:1})
+          // await client.connect()
+          // await client.db("billdb").command({ping:1})
      console.log("Pinged your deployment. You successfully connected to MongoDB!");
      
      
@@ -38,6 +38,17 @@ const client = new MongoClient(uri, {
        console.log(error)
     }
     
+
+ app.get("homepage-bills",(req,res)=>{
+
+   const db =  client.db("billdb")
+   const billCollection = db.collection("bills")
+
+   const result =billCollection.find({}).sort({}).limit(6).toArray()
+   res.send(result)
+
+
+ })
 
 
  }
