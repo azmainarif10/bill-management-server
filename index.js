@@ -2,7 +2,7 @@ const express = require("express")
 const app = express()
 const cors = require("cors")
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const PORT=3000;
 app.use(express.json())
 app.use(cors())
@@ -39,17 +39,40 @@ const client = new MongoClient(uri, {
     }
     
 
- app.get("homepage-bills",(req,res)=>{
+ app.get("/homepage-bills", async (req,res)=>{
 
    const db =  client.db("billdb")
    const billCollection = db.collection("bills")
 
-   const result =billCollection.find({}).sort({}).limit(6).toArray()
+   const result = await billCollection.find({}).sort({date:-1}).limit(6).toArray()
    res.send(result)
 
 
  })
+ app.get("/bills", async (req,res)=>{
+   const category = req.query.category
+   const query={}
+   if(category && category !=="All"){
+     query.category = category
+   }
 
+   const db =  client.db("billdb")
+   const billCollection = db.collection("bills")
 
+   const result = await billCollection.find(query).toArray()
+   res.send(result)
+  
+ })
+  app.get("/bill-detail/:id", async (req,res)=>{
+   const {id} = req.params
+   
+
+   const db =  client.db("billdb")
+   const billCollection = db.collection("bills")
+
+   const result = await billCollection.findOne({_id:new ObjectId(id)})
+   res.send(result)
+  
+ })
  }
 run().catch(console.dir);
