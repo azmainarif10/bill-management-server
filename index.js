@@ -74,5 +74,25 @@ const client = new MongoClient(uri, {
    res.send(result)
   
  })
+
+  app.post("/my-bills", async (req,res)=>{
+   const myBills = req.body
+   
+
+   const db =  client.db("billdb")
+   const myBillCollection = db.collection("myBills")
+
+   const result = await myBillCollection.insertOne(myBills)
+   res.send(result)
+  
+ })
+
+
+
+
+
+
+
+
  }
 run().catch(console.dir);
