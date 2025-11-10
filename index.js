@@ -105,7 +105,18 @@ const client = new MongoClient(uri, {
   
  })
 
+app.put("/my-bills/update/:id", async (req,res)=>{
+    
+  const id = req.params.id
+   const update = req.body
+   
+   const db =  client.db("billdb")
+   const myBillCollection = db.collection("myBills")
 
+   const result = await myBillCollection.updateOne({_id: new ObjectId(id)},{$set:update})
+   res.send(result)
+  
+ })
 
 
 
