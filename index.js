@@ -118,6 +118,17 @@ app.put("/my-bills/update/:id", async (req,res)=>{
   
  })
 
+app.delete("/my-bills/delete/:id", async (req,res)=>{
+    
+  const id = req.params.id
+   
+   const db =  client.db("billdb")
+   const myBillCollection = db.collection("myBills")
+
+   const result = await myBillCollection.deleteOne({_id: new ObjectId(id)})
+   res.send(result)
+  
+ })
 
 
 
