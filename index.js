@@ -88,6 +88,22 @@ const client = new MongoClient(uri, {
  })
 
 
+  app.get("/my-bills", async (req,res)=>{
+   const email = req.query.email
+   
+
+   const db =  client.db("billdb")
+   const myBillCollection = db.collection("myBills")
+
+   const query ={};
+   if(email){
+       query.email = email;
+   }
+
+   const result = await myBillCollection.find(query).toArray()
+   res.send(result)
+  
+ })
 
 
 
