@@ -130,6 +130,20 @@ app.delete("/my-bills/delete/:id", async (req,res)=>{
   
  })
 
+  app.post("/add-bill", async (req,res)=>{
+   const myAdd = req.body
+   
+
+   const db =  client.db("billdb")
+   const myAddCollection = db.collection("bills")
+
+   const result = await myAddCollection.insertOne(myAdd)
+   res.send(result)
+  
+ })
+
+
+
 
 
  }
