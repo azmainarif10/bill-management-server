@@ -6,8 +6,43 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const PORT=3000;
 app.use(express.json())
 app.use(cors())
+const admin = require("firebase-admin");
+
+const decoded = Buffer.from(process.env.FIREBASE_TOKEN, "base64").toString("utf8");
+const serviceAccount = JSON.parse(decoded);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@ae.lom2zra.mongodb.net/?appName=aE"`
+
+ const verifyFireToken = async (req,res,next)=>{
+
+ const authorization = req.headers.authorization
+  if(!authorization){
+    res.status(403).send({message:"unauthorized access"})
+  }
+const token = authorization.split(' ')[1]
+   if(!token){
+    res.status(403).send({message:"unauthorized access"})
+  }
+  
+    try{
+   const decoded = await admin.auth().verifyIdToken(token)
+     req.token_email = decoded.email
+          next()
+    }catch(error){
+             console.error("Firebase Token Verification Error:", error.code, error.message);
+        return res.status(401).send({ 
+            message: "Unauthorized: Invalid or expired token.",
+            error_code: error.code 
+        });
+        }
+
+
+
+ }
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -88,9 +123,13 @@ const client = new MongoClient(uri, {
  })
 
 
-  app.get("/my-bills", async (req,res)=>{
+  app.get("/my-bills",verifyFireToken, async (req,res)=>{
    const email = req.query.email
    
+   
+   if (email !== req.token_email) {
+    return res.status(403).send({ message: "forbidden access" });
+  }
 
    const db =  client.db("billdb")
    const myBillCollection = db.collection("myBills")
