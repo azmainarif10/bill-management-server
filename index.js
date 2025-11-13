@@ -21,11 +21,11 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@ae.
 
  const authorization = req.headers.authorization
   if(!authorization){
-    res.status(403).send({message:"unauthorized access"})
+  return  res.status(403).send({message:"unauthorized access"})
   }
 const token = authorization.split(' ')[1]
    if(!token){
-    res.status(403).send({message:"unauthorized access"})
+    return res.status(403).send({message:"unauthorized access"})
   }
   
     try{
@@ -126,17 +126,19 @@ const client = new MongoClient(uri, {
   app.get("/my-bills",verifyFireToken, async (req,res)=>{
    const email = req.query.email
    
-   
-   if (email !== req.token_email) {
-    return res.status(403).send({ message: "forbidden access" });
-  }
 
    const db =  client.db("billdb")
    const myBillCollection = db.collection("myBills")
 
-   const query ={};
+      const query ={};
+
    if(email){
+
        query.email = email;
+       if (email !== req.token_email) {
+    return res.status(403).send({ message: "forbidden access" });
+  }
+
    }
 
    const result = await myBillCollection.find(query).toArray()
